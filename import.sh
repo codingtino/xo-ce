@@ -59,9 +59,15 @@ fi
 
 xe vm-param-set uuid="$XO_VM_UUID" name-label="$XO_VM_NAME"
 
-# Create VIF on the chosen network
-echo "Creating VIF on network '$NET_NAME'..."
-xe vif-create network-uuid="$NET_UUID" vm-uuid="$XO_VM_UUID" device=0 >/dev/null
+# Check if the imported VM already has a VIF
+EXISTING_VIFS=$(xe vif-list vm-uuid="$XO_VM_UUID" --minimal || true)
+
+if [[ -n "$EXISTING_VIFS" ]]; then
+  echo "VM already has one or more VIFs; skipping VIF creation."
+else
+  echo "Creating VIF on network '$NET_NAME'..."
+  xe vif-create network-uuid="$NET_UUID" vm-uuid="$XO_VM_UUID" device=0 >/dev/null
+fi
 
 # Configure IP via xenstore (if static)
 if [[ "$IP_MODE" != "dhcp" ]]; then
