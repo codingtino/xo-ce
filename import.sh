@@ -5,6 +5,7 @@ echo "=== Xen Orchestra CE import script ==="
 
 # VM image
 XO_IMAGE_URL="${XO_IMAGE_URL:-"https://xo-image.yawn.fi/downloads/image.xva.gz"}"
+XO_IMAGE_URL="${XO_IMAGE_URL:-"https://github.com/codingtino/xo-ce/releases/download/testing/xo-ce.xva.gz"}"
 
 # VM name label
 XO_VM_NAME="${XO_VM_NAME:-xo-ce}"
