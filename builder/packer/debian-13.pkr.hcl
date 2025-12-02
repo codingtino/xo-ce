@@ -14,7 +14,6 @@ source "xenserver-iso" "debian13" {
   remote_password = var.remote_password
 
   # Preseed HTTP server (served by Packer)
-  http_directory = "http"
   ip_getter      = "tools"
 
   boot_wait = "5s"
@@ -27,7 +26,7 @@ source "xenserver-iso" "debian13" {
     "initrd=/install.amd/initrd.gz ",
     "auto=true ",
     "priority=critical ",
-    "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
+    "preseed/url=https://raw.githubusercontent.com/codingtino/xo-ce/main/builder/packer/http/preseed.cfg ",
     "debian-installer=en_US ",
     "locale=en_US.UTF-8 ",
     "keyboard-configuration/xkb-keymap=de ",
