@@ -67,7 +67,7 @@ source "xenserver-iso" "debian13-packer" {
 
 build {
   name    = "debian-13-xcp-ng"
-  sources = ["source.xenserver-iso.-packer"]
+  sources = ["source.xenserver-iso.debian13-packer"]
 
   # 1) Provision: update & ensure SSH is enabled
   provisioner "shell" {
