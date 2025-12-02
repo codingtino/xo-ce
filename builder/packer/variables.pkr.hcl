@@ -93,14 +93,14 @@ variable "template_tags" {
 variable "ssh_username" {
   type        = string
   description = "SSH user (created by preseed)"
-  default     = "debian"
+  default     = "packer"
 }
 
 variable "ssh_password" {
   type        = string
   description = "SSH password"
   sensitive   = true
-  default     = "debian"
+  default     = "packer"
 }
 
 variable "ssh_wait_timeout" {

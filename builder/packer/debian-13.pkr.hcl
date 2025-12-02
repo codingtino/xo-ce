@@ -1,6 +1,6 @@
-source "xenserver-iso" "debian13" {
+source "xenserver-iso" "debian13-packer" {
   # ISO
-  iso_checksum = "none"          # For a real setup, put the SHA256 here
+  iso_checksum = var.iso_checksum
   iso_url      = var.iso_url
 
   # Storage repositories
@@ -30,7 +30,7 @@ source "xenserver-iso" "debian13" {
     "debian-installer=en_US ",
     "locale=en_US.UTF-8 ",
     "keyboard-configuration/xkb-keymap=de ",
-    "netcfg/get_hostname=debian13 ",
+    "netcfg/get_hostname=debian13-packer ",
     "netcfg/get_domain=local ",
     "fb=false ",
     "debconf/frontend=noninteractive ",
@@ -67,15 +67,27 @@ source "xenserver-iso" "debian13" {
 
 build {
   name    = "debian-13-xcp-ng"
-  sources = ["source.xenserver-iso.debian13"]
+  sources = ["source.xenserver-iso.-packer"]
 
-  # Simple provisioning: just ensure SSH is enabled and system is updated.
+  # 1) Provision: update & ensure SSH is enabled
   provisioner "shell" {
     inline = [
       "sudo apt-get update",
       "sudo apt-get -y upgrade",
       "sudo systemctl enable ssh",
       "sudo systemctl restart ssh"
+    ]
+  }
+
+  # 2) Cleanup: remove temporary 'debian' user and sudoers file
+  provisioner "shell" {
+    inline = [
+      # remove account entry; ok even if we're logged in as debian
+      "sudo userdel debian || true",
+      # remove its home directory if still there
+      "sudo rm -rf /home/debian || true",
+      # remove the packer sudoers file
+      "sudo rm -f /etc/sudoers.d/packer || true"
     ]
   }
 }
