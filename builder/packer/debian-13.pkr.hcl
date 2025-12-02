@@ -21,9 +21,12 @@ source "xenserver-iso" "debian13-packer" {
   # Boot the Debian installer and point it to our preseed.cfg
   # This follows the pattern used in the official Debian 12 example.  [oai_citation:3‡College Sidekick](https://www.collegesidekick.com/study-docs/14583800?utm_source=chatgpt.com)
   boot_command = [
-    "<wait><wait><wait><esc><wait>",
-    "/install.amd/vmlinuz ",
-    "initrd=/install.amd/initrd.gz ",
+    "<wait><wait><wait><wait>",
+    "c",                # open GRUB command line
+    "<wait>",
+
+    # GRUB: linux kernel + preseed
+    "linux /install.amd/vmlinuz ",
     "auto=true ",
     "priority=critical ",
     "preseed/url=https://raw.githubusercontent.com/codingtino/xo-ce/main/builder/packer/http/preseed.cfg ",
@@ -35,13 +38,22 @@ source "xenserver-iso" "debian13-packer" {
     "fb=false ",
     "debconf/frontend=noninteractive ",
     "console-setup/ask_detect=false ",
-    "quiet --- <enter>"
-  ]
+    "quiet ---",
+    "<enter><wait>",
 
+    # GRUB: initrd
+    "initrd /install.amd/initrd.gz",
+    "<enter><wait>",
+
+    # GRUB: boot
+    "boot",
+    "<enter>"
+  ]
   # VM/template properties
   # Using a Debian 12 template is fine to install Debian 13; this is what
   # XCP-ng folks do in their examples.  [oai_citation:4‡College Sidekick](https://www.collegesidekick.com/study-docs/14583800?utm_source=chatgpt.com)
   clone_template   = "Debian Trixie 13"
+  firmware         = "uefi"
   vm_name          = var.template_name
   vm_description   = var.template_description
   vcpus_max        = var.template_cpu
@@ -79,7 +91,28 @@ build {
     ]
   }
 
-  # 2) Cleanup: remove temporary 'packer' user and sudoers file
+  # 2) Provision: cleanup template
+  provisioner "shell" {
+    inline = [
+      # Clean machine-id so clones get a unique one on first boot
+      "sudo truncate -s0 /etc/machine-id",
+      "sudo rm -f /var/lib/dbus/machine-id || true",
+
+      # Remove SSH host keys so they are regenerated on first boot
+      "sudo rm -f /etc/ssh/ssh_host_*",
+
+      # Clean apt caches
+      "sudo apt-get clean",
+      "sudo rm -rf /var/lib/apt/lists/*",
+
+      # Clear logs but keep directories
+      "sudo cloud-init clean --logs || true",
+      "sudo find /var/log -type f -exec truncate -s0 {} \\;",
+      "sudo journalctl --rotate --vacuum-time=1s || true"
+    ]
+  }
+
+  # 3) Cleanup: remove temporary 'packer' user and sudoers file
   provisioner "shell" {
     inline = [
       "sudo sh -c 'sed -i \"/^packer:/d\" /etc/passwd; sed -i \"/^packer:/d\" /etc/shadow; sed -i \"/^packer:/d\" /etc/group; sed -i \"/^packer:/d\" /etc/gshadow || true; rm -rf /home/packer || true; rm -f /etc/sudoers.d/packer || true'"

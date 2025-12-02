@@ -1,5 +1,5 @@
 data "xenorchestra_template" "debian13" {
-  name_label = "debian_13_golden"
+  name_label = "debian-13-packer"
 }
 
 data "xenorchestra_network" "lan" {
