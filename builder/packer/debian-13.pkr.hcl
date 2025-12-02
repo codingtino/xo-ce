@@ -79,15 +79,10 @@ build {
     ]
   }
 
-  # 2) Cleanup: remove temporary 'debian' user and sudoers file
+  # 2) Cleanup: remove temporary 'packer' user and sudoers file
   provisioner "shell" {
     inline = [
-      # remove account entry; ok even if we're logged in as debian
-      "sudo userdel debian || true",
-      # remove its home directory if still there
-      "sudo rm -rf /home/debian || true",
-      # remove the packer sudoers file
-      "sudo rm -f /etc/sudoers.d/packer || true"
+      "sudo sh -c 'sed -i \"/^packer:/d\" /etc/passwd; sed -i \"/^packer:/d\" /etc/shadow; sed -i \"/^packer:/d\" /etc/group; sed -i \"/^packer:/d\" /etc/gshadow || true; rm -rf /home/packer || true; rm -f /etc/sudoers.d/packer || true'"
     ]
   }
 }
