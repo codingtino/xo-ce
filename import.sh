@@ -47,7 +47,6 @@ echo
 
 XO_VM_UUID=$(
   curl -fL "$XO_IMAGE_URL" \
-    | zcat \
     | xe vm-import filename=/dev/stdin sr-uuid="$SR_UUID"
 )
 
