@@ -4,7 +4,7 @@ set -euo pipefail
 echo "=== Xen Orchestra CE import script ==="
 
 # VM image
-XO_IMAGE_URL="${XO_IMAGE_URL:-"https://github.com/codingtino/xo-ce/releases/latest/download/xo-ce_build.xva"}"
+XO_IMAGE_URL="${XO_IMAGE_URL:-"https://github.com/codingtino/xo-ce/releases/latest/download/xo-ce-build.xva"}"
 
 # VM name label
 XO_VM_NAME="${XO_VM_NAME:-xo-ce}"
